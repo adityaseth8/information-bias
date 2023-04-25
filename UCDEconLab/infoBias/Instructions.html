@@ -1,16 +1,23 @@
-{{ block title }}
-    Instructions
-{{ endblock }}
 {{ block content }}
-    <p>
-        Hello! Thanks for participating in the UC Davis EconLab experiment. 
-        Participants will be making choices over ordered pairs of (money, task). 
-    </p>
+<div class="card bg-light m-3">
+    <div class="card-body">
 
-    <h3>
-        Please answer the following questions
-    </h3>
-    {{ formfields }}
-    {{ next_button }}
+        <h3>
+            Instructions
+        </h3>
+        
+        <p>
+            Hello! Thanks for participating in the UC Davis EconLab experiment. 
+            Participants will be making choices over ordered pairs of (money, task). 
+        </p>
 
+        <p>
+            Please answer the following questions
+        <p>
+
+        {{ formfields }}
+        {{ next_button }}
+
+    </div>
+</div>
 {{ endblock }}
