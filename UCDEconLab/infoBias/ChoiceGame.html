@@ -8,13 +8,14 @@
         <p><b>Current Choice:</b> ${{player.wallet}}, {{player.task}} as task</p>
         <p id="countdown"></p>
     </div>
-    
-    <div class="choice" style="background-color: aquamarine;">
+
+    <div class="choice">
         <p>Alternative Choice: ${{player.altChoice}}, {{player.altTask}} as task</p>
-        <button onclick="genChoice()">Generate Choice for 10 cents</button>
     </div>
 
-    
+    {{formfields}}
+
+    {{include_sibling 'Instructions.html'}}
 
 	<script>
 		// Set the timer duration in seconds
@@ -36,6 +37,7 @@
 			if (timer < 0) {
 				clearInterval(interval);
 				countdownElement.innerText = 'Time is up!';
+                // go to results page
 			}
 		}, 1000); // Set the interval to 1 second
 	</script>
