@@ -110,6 +110,7 @@
     {{include_sibling 'Instructions.html'}}
 
 
+<<<<<<< HEAD
     // <!-- <script>
     //     function genChoice(){
     //         $.getScript('gen_choice', function() {
@@ -118,6 +119,27 @@
     // });
     //     }
     // </script> -->
+=======
+		// Get the countdown element from the HTML page
+		const countdownElement = document.getElementById('countdown');
+
+		// Start the countdown timer
+		let timer = timerDuration;
+		const interval = setInterval(() => {
+			// Update the countdown element with the remaining time
+			countdownElement.innerText = `Time remaining: ${timer} seconds`;
+
+			// Decrement the timer
+			timer--;
+
+			// Check if the timer has expired
+			if (timer < 0) {
+				clearInterval(interval);
+				countdownElement.innerText = 'Time is up!';
+			}
+		}, 1000); // Set the interval to 1 second
+	</script>
+>>>>>>> parent of 6d75457 (Added game processing function to update current wallet and tasks. Not working rip)
 
 
     // <!-- {{ next_button }} -->
