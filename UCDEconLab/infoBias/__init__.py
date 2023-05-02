@@ -56,33 +56,34 @@ class Instructions(Page):
 
 class ChoiceGame(Page):
     form_model = 'player'
-    form_fields = ['decision']
+    # form_fields = ['decision']
 
-    def gameProcessing(player: Player):
-        # if player stuck with current choice
-        if player.decision == True:
-            player.roundsPlayed += 1
-            # store player's wallet and task value somewhere
-            # generate new alteranative choice and task, display it on the ChoiceGame page
-            player.genChoice()
+    # def gameProcessing(player: Player):
+    #     # if player stuck with current choice
+    #     if player.decision == True:
+    #         player.roundsPlayed += 1
+    #         # store player's wallet and task value somewhere
+    #         # generate new alteranative choice and task, display it on the ChoiceGame page
+    #         player.genChoice()
 
-            if player.roundsPlayed == C.NUM_ROUNDS:
-                # terminate game by going to the results page
-                return player.redirect('Results')
+    #         if player.roundsPlayed == C.NUM_ROUNDS:
+    #             # terminate game by going to the results page
+    #             return player.redirect('Results')
             
-        # Pick alternative Choice
-        elif player.decision == False:
-            player.roundsPlayed += 1
-            #store altChoice and altTask variable values as wallet and task
-            player.wallet = player.altChoice
-            player.task = player.altTask
-            if player.roundsPlayed == C.NUM_ROUNDS:
-                # terminate game by going to the results page
-                return player.redirect('Results')
+    #     # Pick alternative Choice
+    #     elif player.decision == False:
+    #         player.roundsPlayed += 1
+    #         #store altChoice and altTask variable values as wallet and task
+    #         player.wallet = player.altChoice
+    #         player.task = player.altTask
+    #         if player.roundsPlayed == C.NUM_ROUNDS:
+    #             # terminate game by going to the results page
+    #             return player.redirect('Results')
 
-    def before_next_page(self):
-        if self.player.decision is not None:
-            self.gameProcessing(self.player)
+    # def before_next_page(self):
+    #     if self.player.decision is not None:
+    #         self.gameProcessing(self.player)
+    #         print("works4")
         # Define the timeout function
         # @staticmethod
         # def timeout_player(player: Player):
