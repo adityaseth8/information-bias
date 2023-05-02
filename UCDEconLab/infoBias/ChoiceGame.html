@@ -11,8 +11,6 @@
 
         <p>Alternative Choice: ${{player.altChoice}}, {{player.altTask}} as task</p>
 
-        
-        <h1>Multiple Choice Select Question</h1>
         <p>Which option would you like to choose?</p>
         <select id="choice-select">
             <option value="">--Please choose an option--</option>
@@ -23,13 +21,14 @@
     </div>
 
     <div class="task" style="display: none;">
-        <p>hiiii</p>
+        <p>Task:</p>
         <p id="task-sentence"></p>
         <input type="text" id="user-input">
         <button onclick="checkSentence()">Enter</button>
     </div>
 
     <script>
+        console.log("here")
         var userChoice = false;
         var correctSentence = "";
 
@@ -40,12 +39,14 @@
                 "She sells seashells by the seashore.",
                 "How much wood would a woodchuck chuck, if a woodchuck could chuck wood?",
             ];
+            // generate num between 0 and 1, multiply by length of sentences array, round down to whole number
             var sentenceIndex = Math.floor(Math.random() * sentences.length);
             document.getElementById("generated-sentence").innerHTML = sentences[sentenceIndex];
         }
 
         // curr vs alt 
-        function submitChoice() {
+        function submitChoice(player) {
+            console.log("here2")
             var selectBox = document.getElementById("choice-select");
             userChoice = selectBox.options[selectBox.selectedIndex].value;
             alert(userChoice);
@@ -53,6 +54,13 @@
                 document.getElementById("choice").style.display = "block";
                 document.getElementById("task").style.display = "none";
             } else if (userChoice == "alt") {
+                // player.wallet = player.altChoice;  // ISSUE here reading altChoice (undefined)
+                // player.task = player.altTask;
+                console.log(player.altTask)
+                console.log(player.altChoice)
+                console.log("hiiiii")
+                console.log("Player's wallet: " + player.wallet);
+                console.log("Player's task: " + player.task);
                 document.getElementById("choice").style.display = "none";
                 document.getElementById("task").style.display = "block";
                 // generateSentence();

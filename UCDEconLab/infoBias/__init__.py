@@ -111,4 +111,4 @@ class Results(Page):
     pass
 
 
-page_sequence = [Instructions, ChoiceGame]
+page_sequence = [Instructions, ChoiceGame, Results]
