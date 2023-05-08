@@ -5,43 +5,45 @@
         <div class="header" style="text-align: right;">
             <p><b>Current Choice:</b> ${{player.wallet}}, {{player.numTasks}} tasks</p>
             <p><b>Allocated Search Budget:</b> ${{player.searchBudget}}</p>
-            <p>You have played {{ player.round_number }} rounds so far.</p>
+            <p>Round<b> {{ player.round_number }}</b> of <b>{{ C.NUM_ROUNDS }}</b></p>
 
         </div>
 
-        {{formfield 'decision' label="Optional: Choose a choice optionally"}}
+        {{formfield 'decision' label="Choose the best choice"}}
+        {{ formfield_errors 'decision' }}
 
-
+        <p>Cost to generate choice: $0.10</p>
         <button type="button">
             Click here to generate new choice
         </button>
 
-        
+
+        <h3>Developer Comment:</h3>
+        <p>
+            this input box keeps track of the history off all user choice selections.
+            When the page is submitted, the value of hidden input will be recorded in oTree like any other form field.
+            Add type="hidden", to make hidden to user
+        </p>
+        <input name="decision" id="decision" />
+
     </div>
     
     {{ next_button }}
 
     <script>
-        // var tuples = document.getElementsByClassName('tuple');
-        // var revealButton = document.getElementById('reveal-tuples');
-        // var currentIndex = 0;
-
-        // function revealNextTuple() {
-        //     tuples[currentIndex].style.display = 'block';
-        //     currentIndex++;
-        //     if (currentIndex >= tuples.length) {
-        //         revealButton.disabled = true;
-        //     }
-        // }
-
-        // function updateBudget() {
-        //     var budgetDisplay = document.querySelector('#allocated-budget');
-        //     var currentBudget = parseFloat(budgetDisplay.textContent);
-        //     if (currentBudget >= 0.10) {
-        //         budgetDisplay.textContent = (currentBudget - 0.10).toFixed(2);
-        //         revealNextTuple();
-        //     }
-        // }
-
+               
+        // forminputs.my_radio is a RadioNodeList, not a single <input> so need to loop over all options to monitor selection change
+        // monitor user changing selection using onclick event listener for each radio button input
+        for (let radio of forminputs.decision) {
+            radio.onclick = function() {
+                alert("You selected: " + forminputs.decision.value);
+                if (document.getElementById('decision').value) {
+                    document.getElementById('decision').value += ", (" + forminputs.decision.value + ")";
+                } else {
+                    document.getElementById('decision').value = "(" + forminputs.decision.value + ")";
+            }
+            };
+        }
+        
     </script>
 {{ endblock }}

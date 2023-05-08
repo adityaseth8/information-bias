@@ -37,7 +37,7 @@ class Player(BasePlayer):
 
 def decision_choices(player):
     # hard set first choice always current wallet choice
-    choices = ['(0 dollars, 0 tasks)']
+    choices = ['0 dollars, 0 tasks']
     # random generate 25 tuples of int, int for dollar and task amount
     for i in range(25):
         walletChoice = random.randint(0, 25)
@@ -72,12 +72,6 @@ class ChoiceGame(Page):
 
     # time out that auto submits page
     timeout_seconds = 60
-    
-    # def before_next_page(self, timeout_happened=False):
-    #     if self.request.POST.get('reveal-tuples'):
-    #         self.player.searchBudget -= 0.10
-    #         self.player.save()
-
 
 class ResultsWaitPage(WaitPage):
     pass
