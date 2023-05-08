@@ -4,7 +4,7 @@
     <div class="choice" style="display: block;">
         <div class="header" style="text-align: right;">
             <p><b>Current Choice:</b> ${{player.wallet}}, {{player.numTasks}} tasks</p>
-            <p><b>Allocated Search Budget:</b> ${{player.searchBudget}}</p>
+            <p><b>Allocated Search Budget:</b>  $<span id="budget-display">1.50</span> </p>
             <p>Round<b> {{ player.round_number }}</b> of <b>{{ C.NUM_ROUNDS }}</b></p>
 
         </div>
@@ -37,6 +37,7 @@
         const options = document.querySelectorAll('.options-container input[type="radio"]');
         const generateChoiceBtn = document.querySelector('#generate-choice');
         const decisionInput = document.querySelector('#decision');
+        var playerSearchBudget = 1.5;
 
         // hide all but the first option initially
         for (let i = 1; i < options.length; i++) {
@@ -45,11 +46,20 @@
 
         // when "Generate new choice" button is clicked, show the next option
         generateChoiceBtn.addEventListener('click', () => {
-            for (let i = 0; i < options.length; i++) {
-                if (options[i].parentNode.style.display === 'none') {
-                    options[i].parentNode.style.display = 'block';
-                    break;
+            if (playerSearchBudget >= 0.10) {
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].parentNode.style.display === 'none') {
+                        options[i].parentNode.style.display = 'block';
+                        playerSearchBudget -= 0.10;
+                        // Update the text in the HTML element with id="budget-display"
+                        document.getElementById("budget-display").innerHTML = playerSearchBudget.toFixed(2);
+                        break;
+                    }
                 }
+            } else {
+                // Display a message in red saying "Not enough money"
+                document.getElementById("budget-display").style.color = "red";
+                document.getElementById("budget-display").innerHTML = "Not enough money";
             }
         });
 
