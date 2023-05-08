@@ -30,23 +30,27 @@ class Player(BasePlayer):
     wallet = models.IntegerField(default=0)    
     numTasks = models.IntegerField(default=0)
     tuples = models.StringField()
-    # num_rounds = models.IntegerField(initial=0)
-    
-    # decision = models
+    decision = models.StringField(
+        # multiple choice selection (bubble in)
+        widget = widgets.RadioSelect
+    )
 
-# hook method called during the session creating process.
-# Set up initial state of the game (list of choices) for each subsession
-def creating_session(subsession):
-    if subsession.get_players():
-        tuples = []
-        for i in range(25):
-            walletChoice = random.randint(0,25)
-            taskChoice = random.randint(0,25)
-            tuples.append((walletChoice, taskChoice))
-
-         # Serialize tuples as a JSON string and store it in Player model
-        for player in subsession.get_players():
-            player.tuples = json.dumps(tuples)
+def decision_choices(player):
+    # hard set first choice always current wallet choice
+    choices = ['(0 dollars, 0 tasks)']
+    # random generate 25 tuples of int, int for dollar and task amount
+    for i in range(25):
+        walletChoice = random.randint(0, 25)
+        taskChoice = random.randint(0, 25)
+        # convert to string format
+        choice_str = f'{walletChoice} dollars, {taskChoice} tasks'
+        # add to the choices array (array of strings)
+        choices.append(choice_str)
+    # shuffle order of everything excluding hard set first choice
+    random.shuffle(choices[1:])
+    #store choices list as a JSON-encoded string in choices attribute of player object
+    player.choices = json.dumps(choices)
+    return choices
 
 # PAGES
 
@@ -60,19 +64,11 @@ class Instructions(Page):
 
 class ChoiceGame(Page):
     form_model = 'player'
-    # form_fields = ['decision']
+    form_fields = ['decision']
 
     @staticmethod
     def is_displayed(player):
         return player.round_number <= C.NUM_ROUNDS
-
-    @staticmethod
-    def vars_for_template(player: Player):
-        playerTuples = json.loads(player.tuples)
-        return {'tuples': playerTuples}
-    
-    # def get_timeout_seconds(self):
-    #     return C.TIMEOUT_SECONDS
 
     # time out that auto submits page
     timeout_seconds = 60
@@ -91,9 +87,18 @@ class Results(Page):
     pass
 
 class Tasks(Page):
+    # display task page once game is over
     @staticmethod
     def is_displayed(player):
         return player.round_number == C.NUM_ROUNDS
     pass
 
-page_sequence = [Instructions, ChoiceGame, Results, Tasks]
+class Survey(Page):
+    # display task page once game is over
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number == C.NUM_ROUNDS
+    pass
+
+
+page_sequence = [Instructions, ChoiceGame, Results, Tasks, Survey]

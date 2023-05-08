@@ -4,45 +4,44 @@
     <div class="choice" style="display: block;">
         <div class="header" style="text-align: right;">
             <p><b>Current Choice:</b> ${{player.wallet}}, {{player.numTasks}} tasks</p>
-            <p id="countdown"></p>
-            <p><b>Allocated Search Budget:</b> {{player.searchBudget}}</p>
+            <p><b>Allocated Search Budget:</b> ${{player.searchBudget}}</p>
             <p>You have played {{ player.round_number }} rounds so far.</p>
 
         </div>
 
-        {% if player.searchBudget >= 0.10 %}
-        {% for walletAmount, newTask in tuples %}
-            <div class="tuple" style="display:none;">
-                Wallet Amount: {{ walletAmount }}, New Task: {{ newTask }}
-            </div>
-        {% endfor %}
-        <button id="reveal-tuples" onclick="updateBudget()">Reveal Tuples</button>
-        {% endif %}
-    </div>
+        {{formfield 'decision' label="Choose a choice optionally"}}
 
+
+        <button type="button">
+            Click here to generate new choice
+        </button>
+
+        
+    </div>
+    
     {{ next_button }}
 
     <script>
-        var tuples = document.getElementsByClassName('tuple');
-        var revealButton = document.getElementById('reveal-tuples');
-        var currentIndex = 0;
+        // var tuples = document.getElementsByClassName('tuple');
+        // var revealButton = document.getElementById('reveal-tuples');
+        // var currentIndex = 0;
 
-        function revealNextTuple() {
-            tuples[currentIndex].style.display = 'block';
-            currentIndex++;
-            if (currentIndex >= tuples.length) {
-                revealButton.disabled = true;
-            }
-        }
+        // function revealNextTuple() {
+        //     tuples[currentIndex].style.display = 'block';
+        //     currentIndex++;
+        //     if (currentIndex >= tuples.length) {
+        //         revealButton.disabled = true;
+        //     }
+        // }
 
-        function updateBudget() {
-            var budgetDisplay = document.querySelector('#allocated-budget');
-            var currentBudget = parseFloat(budgetDisplay.textContent);
-            if (currentBudget >= 0.10) {
-                budgetDisplay.textContent = (currentBudget - 0.10).toFixed(2);
-                revealNextTuple();
-            }
-        }
+        // function updateBudget() {
+        //     var budgetDisplay = document.querySelector('#allocated-budget');
+        //     var currentBudget = parseFloat(budgetDisplay.textContent);
+        //     if (currentBudget >= 0.10) {
+        //         budgetDisplay.textContent = (currentBudget - 0.10).toFixed(2);
+        //         revealNextTuple();
+        //     }
+        // }
 
     </script>
 {{ endblock }}
