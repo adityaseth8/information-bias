@@ -9,12 +9,15 @@
 
         </div>
 
-        {{formfield 'decision' label="Choose the best choice"}}
+        <div class="options-container">
+            {{ formfield 'decision' }}
+        </div>
+
         {{ formfield_errors 'decision' }}
 
         <p>Cost to generate choice: $0.10</p>
-        <button type="button">
-            Click here to generate new choice
+        <button type="button" id="generate-choice">
+            Generate new choice
         </button>
 
 
@@ -30,29 +33,50 @@
     
     {{ next_button }}
 
-
-    
     <script>
-        
+        const options = document.querySelectorAll('.options-container input[type="radio"]');
+        const generateChoiceBtn = document.querySelector('#generate-choice');
+        const decisionInput = document.querySelector('#decision');
 
-        var countdownElement = document.querySelector('.otree-timer__time-left');
+        // hide all but the first option initially
+        for (let i = 1; i < options.length; i++) {
+            options[i].parentNode.style.display = 'none';
+        }
 
-        // forminputs.my_radio is a RadioNodeList, not a single <input> so need to loop over all options to monitor selection change
-        // monitor user changing selection using onclick event listener for each radio button input
-        for (let radio of forminputs.decision) {
+        // when "Generate new choice" button is clicked, show the next option
+        generateChoiceBtn.addEventListener('click', () => {
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].parentNode.style.display === 'none') {
+                    options[i].parentNode.style.display = 'block';
+                    break;
+                }
+            }
+        });
+
+        // add onclick event listener to each radio button to update the hidden input field
+        for (let radio of options) {
             radio.onclick = function() {
-                var timeLeft = countdownElement.textContent;
-                alert("You selected: " + forminputs.decision.value + "\n" + "{time_left: " + timeLeft.trim() + "}");
-                
-                // format
-                // (0:48,(6 dollars, 5 tasks)), (0:45,(2 dollars, 14 tasks))
-                if (document.getElementById('decision').value) {
-                    document.getElementById('decision').value += ", (" + timeLeft.trim() + ",(" + forminputs.decision.value + "))";
+                const timeLeft = document.querySelector('.otree-timer__time-left').textContent.trim();
+                alert("You selected: " + this.value + "\n" + "{time_left: " + timeLeft + "}");
+
+                // format (0:48,(6 dollars, 5 tasks)), (0:45,(2 dollars, 14 tasks))
+                if (decisionInput.value) {
+                    decisionInput.value += ", (" + timeLeft + ",(" + this.value + "))";
                 } else {
-                    document.getElementById('decision').value = "(" + timeLeft.trim() + ",(" + forminputs.decision.value + "))";
+                    decisionInput.value = "(" + timeLeft + ",(" + this.value + "))";
                 }
             };
         }
-
     </script>
+
+
+    <style>
+        .options-container input[type="radio"] ~ label {
+            display: none;
+        }
+
+        .options-container input[type="radio"]:first-of-type ~ label {
+            display: inline-block;
+        }
+    </style>
 {{ endblock }}
