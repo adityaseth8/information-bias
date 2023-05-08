@@ -30,20 +30,29 @@
     
     {{ next_button }}
 
+
+    
     <script>
-               
+        
+
+        var countdownElement = document.querySelector('.otree-timer__time-left');
+
         // forminputs.my_radio is a RadioNodeList, not a single <input> so need to loop over all options to monitor selection change
         // monitor user changing selection using onclick event listener for each radio button input
         for (let radio of forminputs.decision) {
             radio.onclick = function() {
-                alert("You selected: " + forminputs.decision.value);
+                var timeLeft = countdownElement.textContent;
+                alert("You selected: " + forminputs.decision.value + "\n" + "{time_left: " + timeLeft.trim() + "}");
+                
+                // format
+                // (0:48,(6 dollars, 5 tasks)), (0:45,(2 dollars, 14 tasks))
                 if (document.getElementById('decision').value) {
-                    document.getElementById('decision').value += ", (" + forminputs.decision.value + ")";
+                    document.getElementById('decision').value += ", (" + timeLeft.trim() + ",(" + forminputs.decision.value + "))";
                 } else {
-                    document.getElementById('decision').value = "(" + forminputs.decision.value + ")";
-            }
+                    document.getElementById('decision').value = "(" + timeLeft.trim() + ",(" + forminputs.decision.value + "))";
+                }
             };
         }
-        
+
     </script>
 {{ endblock }}
