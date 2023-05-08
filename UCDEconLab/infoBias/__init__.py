@@ -1,5 +1,6 @@
 from otree.api import *
 import random
+import json
 
 
 doc = """
@@ -10,8 +11,9 @@ Your app description
 class C(BaseConstants):
     NAME_IN_URL = 'infoBias'
     PLAYERS_PER_GROUP = None
-    NUM_ROUNDS = 20 #random.randint(1,5)
+    NUM_ROUNDS = 2
     TIMEOUT_SECONDS = 120
+    SEARCH_COST = 0.10
 
 
 class Subsession(BaseSubsession):
@@ -24,66 +26,61 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
     sid = models.IntegerField(label="What is your student id?", min=0, max=999999999)
-
-    # initially playing around, new thought: what if this question acts as a control to eliminate "invalid data"
-    controlQ = models.StringField(
-        label='''
-        Type "Sally sells seashells by the seashore"'''
-    ) 
-
+    searchBudget = models.FloatField(default=1.50)
     wallet = models.IntegerField(default=0)    
-    task = models.StringField(default=0)
-    altChoice = models.IntegerField(default=random.randint(0,20))
-    altTask = models.StringField(default=random.choice(['matrix', 'typing']))
+    numTasks = models.IntegerField(default=0)
+    tuples = models.StringField()
+    # num_rounds = models.IntegerField(initial=0)
+    
+    # decision = models
 
-    def genChoice(player):
-        player.altChoice = random.randint(0,20)
-        player.altTask = random.choice(['matrix', 'typing'])
+# hook method called during the session creating process.
+# Set up initial state of the game (list of choices) for each subsession
+def creating_session(subsession):
+    if subsession.get_players():
+        tuples = []
+        for i in range(25):
+            walletChoice = random.randint(0,25)
+            taskChoice = random.randint(0,25)
+            tuples.append((walletChoice, taskChoice))
 
-
+         # Serialize tuples as a JSON string and store it in Player model
+        for player in subsession.get_players():
+            player.tuples = json.dumps(tuples)
 
 # PAGES
 
 class Instructions(Page):
     form_model = 'player'
-    form_fields = ['sid', 'controlQ']
+    form_fields = ['sid']
+
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number <= C.NUM_ROUNDS
 
 class ChoiceGame(Page):
     form_model = 'player'
     # form_fields = ['decision']
 
-    # def gameProcessing(player: Player):
-    #     # if player stuck with current choice
-    #     if player.decision == True:
-    #         player.roundsPlayed += 1
-    #         # store player's wallet and task value somewhere
-    #         # generate new alteranative choice and task, display it on the ChoiceGame page
-    #         player.genChoice()
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number <= C.NUM_ROUNDS
 
-    #         if player.roundsPlayed == C.NUM_ROUNDS:
-    #             # terminate game by going to the results page
-    #             return player.redirect('Results')
-            
-    #     # Pick alternative Choice
-    #     elif player.decision == False:
-    #         player.roundsPlayed += 1
-    #         #store altChoice and altTask variable values as wallet and task
-    #         player.wallet = player.altChoice
-    #         player.task = player.altTask
-    #         if player.roundsPlayed == C.NUM_ROUNDS:
-    #             # terminate game by going to the results page
-    #             return player.redirect('Results')
+    @staticmethod
+    def vars_for_template(player: Player):
+        playerTuples = json.loads(player.tuples)
+        return {'tuples': playerTuples}
+    
+    # def get_timeout_seconds(self):
+    #     return C.TIMEOUT_SECONDS
 
-    # def before_next_page(self):
-    #     if self.player.decision is not None:
-    #         self.gameProcessing(self.player)
-    #         print("works4")
-        # Define the timeout function
-        # @staticmethod
-        # def timeout_player(player: Player):
-        #     player.genChoice()
-        #     player.participant.vars['choice'] = player.currChoice
-
+    # time out that auto submits page
+    timeout_seconds = 60
+    
+    # def before_next_page(self, timeout_happened=False):
+    #     if self.request.POST.get('reveal-tuples'):
+    #         self.player.searchBudget -= 0.10
+    #         self.player.save()
 
 
 class ResultsWaitPage(WaitPage):
@@ -93,5 +90,10 @@ class ResultsWaitPage(WaitPage):
 class Results(Page):
     pass
 
+class Tasks(Page):
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number == C.NUM_ROUNDS
+    pass
 
-page_sequence = [Instructions, ChoiceGame, Results]
+page_sequence = [Instructions, ChoiceGame, Results, Tasks]
