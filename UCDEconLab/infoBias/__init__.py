@@ -34,6 +34,13 @@ class Player(BasePlayer):
         # multiple choice selection (bubble in)
         widget = widgets.RadioSelect
     )
+    choiceHistory = models.StringField(blank=True, default="") # store returned dictionary as JSON-encoded string
+
+    def store_choice(self, choice_data):
+        self.choiceHistory+= json.dumps(choice_data)
+
+    def get_choices(self):
+        return self.choiceHistory
 
 def decision_choices(player):
     # hard set first choice always current wallet choice
@@ -75,7 +82,14 @@ class ChoiceGame(Page):
 
     @staticmethod
     def live_method(player, data):
-        print('received new choice from' , data) 
+        print('New Selection!:', data)
+        player.store_choice(data)
+        stored_data_list = player.get_choices()
+        print(stored_data_list)
+        # random_entry = random.choice(stored_data_list)
+        # Print the randomly selected entry
+        # print("Randomly selected entry:", random_entry)
+
 
 
 class ResultsWaitPage(WaitPage):
