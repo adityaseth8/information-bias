@@ -25,14 +25,51 @@ class Group(BaseGroup):
 
 selectionHistory = []
 
-def filter_by_round():
-    data = []
+def selectChoice():
     selected_round = random.randint(1, C.NUM_ROUNDS)
+    filtered_data = filter_by_round(selected_round)
+    print("filtered data:")
+    print(filtered_data)
+    print("\n")
+    selected_history = filter_by_time(filtered_data, selected_round)
+    print(selected_history)
+
+def filter_by_round(selected_round):
+    data = []
     print(selected_round)
     for x in selectionHistory:
         if x['round'] == selected_round:
             data.append(x)
     return data
+
+def filter_by_time(filtered_data, selected_round):
+    # Generate a random timestamp between 0:59 and 0:00
+    seconds = random.randint(0, 59)
+    rand_time = "0:" + str(seconds).zfill(2)
+    print(rand_time)  # format: 0:36
+
+    chosen_choice = None
+    # Iterate through the list and find the choice at the given timestamp
+    for item_index, item in enumerate(filtered_data):
+        item_time = item['time']
+        print(item_time)
+        print(item)
+        if (rand_time > filtered_data[item_index]['time']):
+            selected_row = {'round': selected_round, 'time': '1:00', 'choice': '0 dollars, 0 tasks'}
+            break
+        if item_index + 1 < len(filtered_data):
+            next_item_time = filtered_data[item_index + 1]['time']
+            if rand_time >= next_item_time and item_time >= rand_time:
+                selected_row = item
+                break
+            else:
+                continue
+        else:
+            selected_row = item
+    return selected_row
+    # print("final")
+    # print(selected_row)
+
 
 class Player(BasePlayer):
     sid = models.IntegerField(label="What is your student id?", min=0, max=999999999)
@@ -128,9 +165,17 @@ class Results(Page):
     
     @staticmethod
     def before_next_page(player, timeout_happened):
-        filtered_data = []
-        filtered_data = filter_by_round()
-        print(filtered_data)
+        selectChoice()
+        
+        # filtered_data = []
+        # selected_history = []
+        # filtered_data = filter_by_round()
+        # print("filtered data:")
+        # print(filtered_data)
+        # print("\n")
+        # selected_history = filter_by_time(filtered_data)
+        # print(selected_history)
+
 
     
     pass
