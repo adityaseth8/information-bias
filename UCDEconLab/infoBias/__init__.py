@@ -23,6 +23,16 @@ class Subsession(BaseSubsession):
 class Group(BaseGroup):
     pass
 
+selectionHistory = []
+
+def filter_by_round():
+    data = []
+    selected_round = random.randint(1, C.NUM_ROUNDS)
+    print(selected_round)
+    for x in selectionHistory:
+        if x['round'] == selected_round:
+            data.append(x)
+    return data
 
 class Player(BasePlayer):
     sid = models.IntegerField(label="What is your student id?", min=0, max=999999999)
@@ -34,13 +44,24 @@ class Player(BasePlayer):
         # multiple choice selection (bubble in)
         widget = widgets.RadioSelect
     )
-    choiceHistory = models.StringField(blank=True, default="") # store returned dictionary as JSON-encoded string
+    choiceHistory = models.StringField(blank=True, default="[]") # store returned dictionary as JSON-encoded string
+
 
     def store_choice(self, choice_data):
-        self.choiceHistory+= json.dumps(choice_data)
+        if self.choiceHistory:
+            # Retrieve existing choices and convert to a list
+            existing_choices = json.loads(self.choiceHistory)
+        else:
+            existing_choices = []
+        
+        # Append the new choice data to the existing choices list
+        existing_choices.append(choice_data)
+        
+        # Store the updated choices as a JSON-encoded string
+        self.choiceHistory = json.dumps(existing_choices)
 
     def get_choices(self):
-        return self.choiceHistory
+        return json.loads(self.choiceHistory)
 
 def decision_choices(player):
     # hard set first choice always current wallet choice
@@ -78,14 +99,18 @@ class ChoiceGame(Page):
         return player.round_number <= C.NUM_ROUNDS
 
     # time out that auto submits page
-    timeout_seconds = 60
+    timeout_seconds = 15
 
     @staticmethod
     def live_method(player, data):
         print('New Selection!:', data)
-        player.store_choice(data)
-        stored_data_list = player.get_choices()
-        print(stored_data_list)
+        print('STORING!')
+        selectionHistory.append(data)
+        print(selectionHistory)
+
+        # player.store_choice(data)
+        # stored_data_list = player.get_choices()
+        # print(stored_data_list)
         # random_entry = random.choice(stored_data_list)
         # Print the randomly selected entry
         # print("Randomly selected entry:", random_entry)
@@ -97,6 +122,17 @@ class ResultsWaitPage(WaitPage):
 
 
 class Results(Page):
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number == C.NUM_ROUNDS
+    
+    @staticmethod
+    def before_next_page(player, timeout_happened):
+        filtered_data = []
+        filtered_data = filter_by_round()
+        print(filtered_data)
+
+    
     pass
 
 class Tasks(Page):
@@ -104,6 +140,12 @@ class Tasks(Page):
     @staticmethod
     def is_displayed(player):
         return player.round_number == C.NUM_ROUNDS
+    
+    # @staticmethod
+    # def before_next_page(self):
+    #     filter_by_round()
+    #     print(filtered_data)
+
     pass
 
 class Survey(Page):
