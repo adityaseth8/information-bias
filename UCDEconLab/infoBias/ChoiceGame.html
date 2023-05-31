@@ -68,6 +68,12 @@
             radio.onclick = function() {
                 const timeLeft = document.querySelector('.otree-timer__time-left').textContent.trim();
                 alert("You selected: " + this.value + "\n" + "{time_left: " + timeLeft + "}");
+                // liveSend("You selected: " + this.value + "\n" + "{time_left: " + timeLeft + "}");
+                liveSend({
+                    "round": {{player.round_number}},
+                    "time": timeLeft,
+                    "choice": this.value
+                });
 
                 // format (0:48,(6 dollars, 5 tasks)), (0:45,(2 dollars, 14 tasks))
                 if (decisionInput.value) {

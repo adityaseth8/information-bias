@@ -73,6 +73,11 @@ class ChoiceGame(Page):
     # time out that auto submits page
     timeout_seconds = 60
 
+    @staticmethod
+    def live_method(player, data):
+        print('received new choice from' , data) 
+
+
 class ResultsWaitPage(WaitPage):
     pass
 
