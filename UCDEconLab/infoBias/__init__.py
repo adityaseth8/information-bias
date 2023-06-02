@@ -24,19 +24,24 @@ class Group(BaseGroup):
     pass
 
 selectionHistory = []
+selectedChoice = []
 
-def selectChoice():
+def selectChoice(player):
     selected_round = random.randint(1, C.NUM_ROUNDS)
     filtered_data = filter_by_round(selected_round)
-    print("filtered data:")
-    print(filtered_data)
-    print("\n")
-    selected_history = filter_by_time(filtered_data, selected_round)
-    print(selected_history)
+    # print("filtered data:")
+    # print(filtered_data)
+    # print("\n")
+    selectedChoice = filter_by_time(filtered_data, selected_round)
+    print("selected choice")
+    print(selectedChoice)
+    choice_parts = selectedChoice['choice'].split(',')
+    player.selectedMoney = int(choice_parts[0].strip().split()[0])
+    player.selectedNumTasks = int(choice_parts[1].strip().split()[0])
 
 def filter_by_round(selected_round):
     data = []
-    print(selected_round)
+    # print(selected_round)
     for x in selectionHistory:
         if x['round'] == selected_round:
             data.append(x)
@@ -46,14 +51,14 @@ def filter_by_time(filtered_data, selected_round):
     # Generate a random timestamp between 0:59 and 0:00
     seconds = random.randint(0, 59)
     rand_time = "0:" + str(seconds).zfill(2)
-    print(rand_time)  # format: 0:36
+    # print(rand_time)  # format: 0:36
 
     chosen_choice = None
     # Iterate through the list and find the choice at the given timestamp
     for item_index, item in enumerate(filtered_data):
         item_time = item['time']
-        print(item_time)
-        print(item)
+        # print(item_time)
+        # print(item)
         if (rand_time > filtered_data[item_index]['time']):
             selected_row = {'round': selected_round, 'time': '1:00', 'choice': '0 dollars, 0 tasks'}
             break
@@ -82,6 +87,8 @@ class Player(BasePlayer):
         widget = widgets.RadioSelect
     )
     choiceHistory = models.StringField(blank=True, default="[]") # store returned dictionary as JSON-encoded string
+    selectedMoney = models.IntegerField()
+    selectedNumTasks = models.IntegerField()
 
 
     def store_choice(self, choice_data):
@@ -145,12 +152,10 @@ class ChoiceGame(Page):
         selectionHistory.append(data)
         print(selectionHistory)
 
-        # player.store_choice(data)
-        # stored_data_list = player.get_choices()
-        # print(stored_data_list)
-        # random_entry = random.choice(stored_data_list)
-        # Print the randomly selected entry
-        # print("Randomly selected entry:", random_entry)
+    @staticmethod
+    def before_next_page(player, timeout_happened):
+        if player.round_number == C.NUM_ROUNDS:
+           selectChoice(player)
 
 
 
@@ -162,22 +167,21 @@ class Results(Page):
     @staticmethod
     def is_displayed(player):
         return player.round_number == C.NUM_ROUNDS
-    
-    @staticmethod
-    def before_next_page(player, timeout_happened):
-        selectChoice()
+
+    # @staticmethod
+    # def vars_for_template(player):
+    #     selectChoice()
+    #     choice_parts = selectedChoice['choice'].split(',')
+    #     dollars = choice_parts[0].strip().split()[0]
+    #     tasks = choice_parts[1].strip().split()[0]
+    #     return dict(
+    #         dollars=dollars,
+    #         tasks=tasks
+    #     )
+    # @staticmethod
+    # def live_method(player, data):
+    #     return {'selectedChoice': selectedChoice}
         
-        # filtered_data = []
-        # selected_history = []
-        # filtered_data = filter_by_round()
-        # print("filtered data:")
-        # print(filtered_data)
-        # print("\n")
-        # selected_history = filter_by_time(filtered_data)
-        # print(selected_history)
-
-
-    
     pass
 
 class Tasks(Page):
