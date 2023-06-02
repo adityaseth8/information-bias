@@ -23,6 +23,7 @@ class Subsession(BaseSubsession):
 class Group(BaseGroup):
     pass
 
+# in the future, remove global variables
 selectionHistory = []
 selectedChoice = []
 
@@ -78,7 +79,7 @@ def filter_by_time(filtered_data, selected_round):
 
 class Player(BasePlayer):
     sid = models.IntegerField(label="What is your student id?", min=0, max=999999999)
-    searchBudget = models.FloatField(default=1.50)
+    searchBudget = models.FloatField(default=4.00)
     wallet = models.IntegerField(default=0)    
     numTasks = models.IntegerField(default=0)
     tuples = models.StringField()
@@ -111,7 +112,7 @@ def decision_choices(player):
     # hard set first choice always current wallet choice
     choices = ['0 dollars, 0 tasks']
     # random generate 25 tuples of int, int for dollar and task amount
-    for i in range(25):
+    for i in range(40):
         walletChoice = random.randint(0, 25)
         taskChoice = random.randint(0, 25)
         # convert to string format
@@ -126,10 +127,16 @@ def decision_choices(player):
 
 # PAGES
 
-class Instructions(Page):
+class Intro(Page):
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number == 1
+    
     form_model = 'player'
     form_fields = ['sid']
+    pass
 
+class Instructions(Page):
     @staticmethod
     def is_displayed(player):
         return player.round_number <= C.NUM_ROUNDS
@@ -143,7 +150,7 @@ class ChoiceGame(Page):
         return player.round_number <= C.NUM_ROUNDS
 
     # time out that auto submits page
-    timeout_seconds = 15
+    timeout_seconds = 60
 
     @staticmethod
     def live_method(player, data):
@@ -167,21 +174,7 @@ class Results(Page):
     @staticmethod
     def is_displayed(player):
         return player.round_number == C.NUM_ROUNDS
-
-    # @staticmethod
-    # def vars_for_template(player):
-    #     selectChoice()
-    #     choice_parts = selectedChoice['choice'].split(',')
-    #     dollars = choice_parts[0].strip().split()[0]
-    #     tasks = choice_parts[1].strip().split()[0]
-    #     return dict(
-    #         dollars=dollars,
-    #         tasks=tasks
-    #     )
-    # @staticmethod
-    # def live_method(player, data):
-    #     return {'selectedChoice': selectedChoice}
-        
+       
     pass
 
 class Tasks(Page):
@@ -189,12 +182,6 @@ class Tasks(Page):
     @staticmethod
     def is_displayed(player):
         return player.round_number == C.NUM_ROUNDS
-    
-    # @staticmethod
-    # def before_next_page(self):
-    #     filter_by_round()
-    #     print(filtered_data)
-
     pass
 
 class Survey(Page):
@@ -205,4 +192,4 @@ class Survey(Page):
     pass
 
 
-page_sequence = [Instructions, ChoiceGame, Results, Tasks, Survey]
+page_sequence = [Intro, Instructions, ChoiceGame, Results, Tasks, Survey]
