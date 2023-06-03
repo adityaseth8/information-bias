@@ -1,6 +1,9 @@
 from otree.api import *
 import random
 import json
+import numpy as np
+import string
+import ast
 
 
 doc = """
@@ -14,6 +17,10 @@ class C(BaseConstants):
     NUM_ROUNDS = 2
     TIMEOUT_SECONDS = 120
     SEARCH_COST = 0.10
+
+    dimension = 5  # dimension of the zero-one matrix (dimension x dimension = length)
+    length = dimension * dimension
+    proportion = 0.5  # proportion of zeros in the matrix
 
 
 class Subsession(BaseSubsession):
@@ -30,9 +37,6 @@ selectedChoice = []
 def selectChoice(player):
     selected_round = random.randint(1, C.NUM_ROUNDS)
     filtered_data = filter_by_round(selected_round)
-    # print("filtered data:")
-    # print(filtered_data)
-    # print("\n")
     selectedChoice = filter_by_time(filtered_data, selected_round)
     print("selected choice")
     print(selectedChoice)
@@ -42,7 +46,6 @@ def selectChoice(player):
 
 def filter_by_round(selected_round):
     data = []
-    # print(selected_round)
     for x in selectionHistory:
         if x['round'] == selected_round:
             data.append(x)
@@ -52,7 +55,6 @@ def filter_by_time(filtered_data, selected_round):
     # Generate a random timestamp between 0:59 and 0:00
     seconds = random.randint(0, 59)
     rand_time = "0:" + str(seconds).zfill(2)
-    # print(rand_time)  # format: 0:36
 
     chosen_choice = None
     # Iterate through the list and find the choice at the given timestamp
@@ -76,6 +78,25 @@ def filter_by_time(filtered_data, selected_round):
     # print("final")
     # print(selected_row)
 
+def creating_session(subsession):
+    for player in subsession.get_players():
+        aux = np.random.rand(1, C.length)  # get random numbers between zero and 1
+        zero_one = aux > (1 - C.proportion)  # transform to vector of booleans
+        integer_vector = 1 * zero_one  # transform to vector of integers
+        flat_vector = integer_vector.flatten().tolist()  # converts ndarray to flat list
+
+        # method to indicate column breaks
+        broken_vector = []
+        for index in range(0, C.length):
+            broken_vector.append(flat_vector[index])
+            if index % C.dimension == C.dimension - 1:
+                broken_vector.append(-1)
+
+        string_vector = [str(int) for int in broken_vector]  # transform to vector of strings
+        player.task_vector = ", ".join(string_vector)  # join into one string
+
+        # method to generate random string (completion code)
+
 
 class Player(BasePlayer):
     sid = models.IntegerField(label="What is your student id?", min=0, max=999999999)
@@ -90,6 +111,11 @@ class Player(BasePlayer):
     choiceHistory = models.StringField(blank=True, default="[]") # store returned dictionary as JSON-encoded string
     selectedMoney = models.IntegerField()
     selectedNumTasks = models.IntegerField()
+
+    task_vector = models.StringField()
+    completion_code = models.StringField(initial=''.join(
+        random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in
+        range(9)))
 
 
     def store_choice(self, choice_data):
@@ -150,7 +176,7 @@ class ChoiceGame(Page):
         return player.round_number <= C.NUM_ROUNDS
 
     # time out that auto submits page
-    timeout_seconds = 60
+    timeout_seconds = 15
 
     @staticmethod
     def live_method(player, data):
@@ -178,11 +204,20 @@ class Results(Page):
     pass
 
 class Tasks(Page):
+    form_model = 'player'
+
     # display task page once game is over
     @staticmethod
     def is_displayed(player):
         return player.round_number == C.NUM_ROUNDS
     pass
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        task_vector = ast.literal_eval(player.task_vector)
+        return {
+            "task_vector": task_vector,
+        }
 
 class Survey(Page):
     # display task page once game is over
