@@ -3,7 +3,7 @@
 {{ block content }}
     <div class="choice" style="display: block;">
         <div class="header" style="text-align: right;">
-            <p><b>Current Choice:</b> ${{player.wallet}}, {{player.numTasks}} tasks</p>
+            <!-- <p><b>Current Choice:</b> ${{player.wallet}}, {{player.numTasks}} tasks</p> -->
             <p><b>Allocated Search Budget:</b>  $<span id="budget-display">4.00</span> </p>
             <p>Round<b> {{ player.round_number }}</b> of <b>{{ C.NUM_ROUNDS }}</b></p>
 
@@ -67,7 +67,7 @@
         for (let radio of options) {
             radio.onclick = function() {
                 const timeLeft = document.querySelector('.otree-timer__time-left').textContent.trim();
-                alert("You selected: " + this.value + "\n" + "{time_left: " + timeLeft + "}");
+                // alert("You selected: " + this.value + "\n" + "{time_left: " + timeLeft + "}");
                 // liveSend("You selected: " + this.value + "\n" + "{time_left: " + timeLeft + "}");
                 liveSend({
                     "round": {{player.round_number}},

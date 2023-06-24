@@ -57,10 +57,19 @@ def filter_by_round(selected_round):
     return data
 
 def filter_by_time(filtered_data, selected_round):
-    # Generate a random timestamp between 0:59 and 0:00
-    seconds = random.randint(0, 5)
-    rand_time = "0:" + str(seconds).zfill(2)
+    time_values = list(range(60))
 
+    # Define the corresponding probabilities based on the equation F(X) = 0.152432X + 0.811183
+    probabilities = [0.142432 * x + 0.811183 for x in time_values]
+
+    # Normalize the probabilities to sum up to 1
+    total_prob = sum(probabilities)
+    probabilities = [prob / total_prob for prob in probabilities]
+
+    # Use random.choices to select a time value based on the probabilities
+    time = random.choices(time_values, probabilities)[0]
+    rand_time = "0:" + str(time).zfill(2)
+    print("***GENERATED TIME", rand_time)
     chosen_choice = None
     # Iterate through the list and find the choice at the given timestamp
     for item_index, item in enumerate(filtered_data):
@@ -159,7 +168,7 @@ class ChoiceGame(Page):
         return player.round_number <= C.NUM_ROUNDS
 
     # time out that auto submits page
-    timeout_seconds = 5
+    timeout_seconds = 60
 
     @staticmethod
     def live_method(player, data):
