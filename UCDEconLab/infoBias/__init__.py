@@ -33,6 +33,7 @@ class Group(BaseGroup):
 # in the future, remove global variables
 selectionHistory = []
 selectedChoice = []
+# numTasks = 0
 
 def selectChoice(player):
     selected_round = random.randint(1, C.NUM_ROUNDS)
@@ -43,6 +44,10 @@ def selectChoice(player):
     choice_parts = selectedChoice['choice'].split(',')
     player.selectedMoney = int(choice_parts[0].strip().split()[0])
     player.selectedNumTasks = int(choice_parts[1].strip().split()[0])
+    player.session.vars['selectedNumTasks'] = player.selectedNumTasks
+    player.participant.selectedNumTasks  = player.selectedNumTasks
+    # numTasks = player.selectedNumTasks
+    # print(numTasks)
 
 def filter_by_round(selected_round):
     data = []
@@ -53,7 +58,7 @@ def filter_by_round(selected_round):
 
 def filter_by_time(filtered_data, selected_round):
     # Generate a random timestamp between 0:59 and 0:00
-    seconds = random.randint(0, 59)
+    seconds = random.randint(0, 5)
     rand_time = "0:" + str(seconds).zfill(2)
 
     chosen_choice = None
@@ -75,33 +80,11 @@ def filter_by_time(filtered_data, selected_round):
         else:
             selected_row = item
     return selected_row
-    # print("final")
-    # print(selected_row)
-
-def creating_session(subsession):
-    for player in subsession.get_players():
-        aux = np.random.rand(1, C.length)  # get random numbers between zero and 1
-        zero_one = aux > (1 - C.proportion)  # transform to vector of booleans
-        integer_vector = 1 * zero_one  # transform to vector of integers
-        flat_vector = integer_vector.flatten().tolist()  # converts ndarray to flat list
-
-        # method to indicate column breaks
-        broken_vector = []
-        for index in range(0, C.length):
-            broken_vector.append(flat_vector[index])
-            if index % C.dimension == C.dimension - 1:
-                broken_vector.append(-1)
-
-        string_vector = [str(int) for int in broken_vector]  # transform to vector of strings
-        player.task_vector = ", ".join(string_vector)  # join into one string
-
-        # method to generate random string (completion code)
-
 
 class Player(BasePlayer):
     sid = models.IntegerField(label="What is your student id?", min=0, max=999999999)
     searchBudget = models.FloatField(default=4.00)
-    wallet = models.IntegerField(default=0)    
+    wallet = models.IntegerField(default=0)
     numTasks = models.IntegerField(default=0)
     tuples = models.StringField()
     decision = models.StringField(
@@ -176,7 +159,7 @@ class ChoiceGame(Page):
         return player.round_number <= C.NUM_ROUNDS
 
     # time out that auto submits page
-    timeout_seconds = 15
+    timeout_seconds = 5
 
     @staticmethod
     def live_method(player, data):
@@ -188,10 +171,9 @@ class ChoiceGame(Page):
     @staticmethod
     def before_next_page(player, timeout_happened):
         if player.round_number == C.NUM_ROUNDS:
-           selectChoice(player)
+            selectChoice(player)
 
-
-
+            
 class ResultsWaitPage(WaitPage):
     pass
 
@@ -203,28 +185,4 @@ class Results(Page):
        
     pass
 
-class Tasks(Page):
-    form_model = 'player'
-
-    # display task page once game is over
-    @staticmethod
-    def is_displayed(player):
-        return player.round_number == C.NUM_ROUNDS
-    pass
-
-    @staticmethod
-    def vars_for_template(player: Player):
-        task_vector = ast.literal_eval(player.task_vector)
-        return {
-            "task_vector": task_vector,
-        }
-
-class Survey(Page):
-    # display task page once game is over
-    @staticmethod
-    def is_displayed(player):
-        return player.round_number == C.NUM_ROUNDS
-    pass
-
-
-page_sequence = [Intro, Instructions, ChoiceGame, Results, Tasks, Survey]
+page_sequence = [Intro, Instructions, ChoiceGame, Results]

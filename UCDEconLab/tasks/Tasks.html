@@ -1,0 +1,106 @@
+{{ block title }}
+Validation by Class (vector is randomly generated)
+{{ endblock }}
+{{ block content }}
+
+<div class="header" style="text-align: right;">        
+  <p>Task <b>{{ player.round_number }}</b> of <b>{{player.participant.selectedNumTasks}}</b></p>
+</div>
+
+Select all the zeros.
+
+<style>
+
+
+td {
+  width: 50px;
+  height: 50px;
+  text-align: center
+}
+
+.checked {
+  background-color:  #ffde24;
+}
+</style>
+
+<form>
+<table id="effort_task">
+    <tr>
+  {% for s in task_vector %}
+        {% if s == 0 %}
+            <td>
+                <input type="checkbox" name="zero" class="zero">
+                <label for="zero">0</label>
+            </td>
+        {% elif s == 1 %}
+            <td>
+                <input type="checkbox" name="one" class="one">
+                <label for="one">1</label>
+            </td>
+        {% else %}
+            </tr>
+            <tr>
+        {% endif %}
+  {% endfor %}
+    </tr>
+</table>
+
+<input type="checkbox" id="complete" name="complete">
+<label for="complete">Complete </label>
+<input type="submit" id="btSubmit" disabled />
+
+</form>
+
+{{ endblock }}
+
+{% block scripts %}
+<script>
+
+    // code for actionable table cells
+    var cbcfn = function(e) {
+        var theBox = $(this).find('input:checkbox:first');
+        theBox.click();
+        theBox.parent().css("backgroundColor","#ffde24");
+    };
+
+    $('#effort_task td').click(cbcfn);
+
+    $('#effort_task td').find('input:checkbox:first').click(cbcfn);
+
+    // code for incomplete checkbox
+    var overall = document.querySelector('input[id="complete"]');
+    var zeros = document.querySelectorAll('td input.zero');
+
+      overall.addEventListener('click', function(e) {
+        e.preventDefault();
+      });
+
+      for(var i = 0; i < zeros.length; i++) {
+        zeros[i].addEventListener('click', updateDisplay);
+      }
+
+      function updateDisplay() {
+        var bt = document.getElementById('btSubmit');
+        var checkedCount = 0;
+        for(var i = 0; i < zeros.length; i++) {
+          if(zeros[i].checked) {
+            checkedCount++;
+          }
+        }
+
+        if(checkedCount === 0) {
+          overall.checked = false;
+          overall.indeterminate = false;
+          bt.disabled = true;
+        } else if(checkedCount === zeros.length) {
+          overall.checked = true;
+          overall.indeterminate = false;
+          bt.disabled = false;
+        } else {
+          overall.checked = false;
+          overall.indeterminate = true;
+          bt.disabled = true;
+        }
+      }
+</script>
+{% endblock %}  

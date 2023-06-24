@@ -3,7 +3,7 @@ from os import environ
 SESSION_CONFIGS = [
     dict(
         name='infoBias',
-        app_sequence=['infoBias'],
+        app_sequence=['infoBias', 'tasks'],
         num_demo_participants=1
     )
     
@@ -18,8 +18,8 @@ SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=1.00, participation_fee=0.00, doc=""
 )
 
-PARTICIPANT_FIELDS = []
-SESSION_FIELDS = []
+PARTICIPANT_FIELDS = ['selectedNumTasks', 'selectedMoney']
+SESSION_FIELDS = ['selectedNumTasks']
 
 # ISO-639 code
 # for example: de, fr, ja, ko, zh-hans
