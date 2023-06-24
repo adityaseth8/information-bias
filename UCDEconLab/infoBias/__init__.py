@@ -10,7 +10,6 @@ doc = """
 Your app description
 """
 
-
 class C(BaseConstants):
     NAME_IN_URL = 'infoBias'
     PLAYERS_PER_GROUP = None
@@ -18,14 +17,8 @@ class C(BaseConstants):
     TIMEOUT_SECONDS = 120
     SEARCH_COST = 0.10
 
-    dimension = 5  # dimension of the zero-one matrix (dimension x dimension = length)
-    length = dimension * dimension
-    proportion = 0.5  # proportion of zeros in the matrix
-
-
 class Subsession(BaseSubsession):
     pass
-
 
 class Group(BaseGroup):
     pass
@@ -33,7 +26,6 @@ class Group(BaseGroup):
 # in the future, remove global variables
 selectionHistory = []
 selectedChoice = []
-# numTasks = 0
 
 def selectChoice(player):
     selected_round = random.randint(1, C.NUM_ROUNDS)
@@ -44,10 +36,9 @@ def selectChoice(player):
     choice_parts = selectedChoice['choice'].split(',')
     player.selectedMoney = int(choice_parts[0].strip().split()[0])
     player.selectedNumTasks = int(choice_parts[1].strip().split()[0])
-    player.session.vars['selectedNumTasks'] = player.selectedNumTasks
-    player.participant.selectedNumTasks  = player.selectedNumTasks
-    # numTasks = player.selectedNumTasks
-    # print(numTasks)
+    # player.session.vars['selectedNumTasks'] = player.selectedNumTasks
+    player.participant.selectedNumTasks = player.selectedNumTasks
+    player.participant.selectedMoney = player.selectedMoney
 
 def filter_by_round(selected_round):
     data = []
@@ -74,8 +65,6 @@ def filter_by_time(filtered_data, selected_round):
     # Iterate through the list and find the choice at the given timestamp
     for item_index, item in enumerate(filtered_data):
         item_time = item['time']
-        # print(item_time)
-        # print(item)
         if (rand_time > filtered_data[item_index]['time']):
             selected_row = {'round': selected_round, 'time': '1:00', 'choice': '0 dollars, 0 tasks'}
             break
@@ -92,10 +81,6 @@ def filter_by_time(filtered_data, selected_round):
 
 class Player(BasePlayer):
     sid = models.IntegerField(label="What is your student id?", min=0, max=999999999)
-    searchBudget = models.FloatField(default=4.00)
-    wallet = models.IntegerField(default=0)
-    numTasks = models.IntegerField(default=0)
-    tuples = models.StringField()
     decision = models.StringField(
         # multiple choice selection (bubble in)
         widget = widgets.RadioSelect
@@ -103,11 +88,6 @@ class Player(BasePlayer):
     choiceHistory = models.StringField(blank=True, default="[]") # store returned dictionary as JSON-encoded string
     selectedMoney = models.IntegerField()
     selectedNumTasks = models.IntegerField()
-
-    task_vector = models.StringField()
-    completion_code = models.StringField(initial=''.join(
-        random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in
-        range(9)))
 
 
     def store_choice(self, choice_data):
@@ -126,6 +106,7 @@ class Player(BasePlayer):
     def get_choices(self):
         return json.loads(self.choiceHistory)
 
+# built in otree field : use _choices to dynamically determine list of decisions
 def decision_choices(player):
     # hard set first choice always current wallet choice
     choices = ['0 dollars, 0 tasks']
@@ -181,11 +162,9 @@ class ChoiceGame(Page):
     def before_next_page(player, timeout_happened):
         if player.round_number == C.NUM_ROUNDS:
             selectChoice(player)
-
-            
+          
 class ResultsWaitPage(WaitPage):
     pass
-
 
 class Results(Page):
     @staticmethod

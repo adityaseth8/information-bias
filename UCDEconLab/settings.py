@@ -19,7 +19,7 @@ SESSION_CONFIG_DEFAULTS = dict(
 )
 
 PARTICIPANT_FIELDS = ['selectedNumTasks', 'selectedMoney']
-SESSION_FIELDS = ['selectedNumTasks']
+SESSION_FIELDS = []
 
 # ISO-639 code
 # for example: de, fr, ja, ko, zh-hans
