@@ -8,15 +8,13 @@ doc = """
 Your app description
 """
 
-
 class Constants(BaseConstants):
-    num_rounds = 50
+    num_rounds = 50  #arbitrary fixed number that is overwritten by player.participant.selectedNumTasks
     name_in_url = 'generate_validate'
     players_per_group = None
     dimension = 5  # dimension of the zero-one matrix (dimension x dimension = length)
     length = dimension * dimension
     proportion = 0.5  # proportion of zeros in the matrix
-
 
 class Subsession(BaseSubsession):
     pass
@@ -24,7 +22,6 @@ class Subsession(BaseSubsession):
 
 class Group(BaseGroup):
     pass
-
 
 class Player(BasePlayer):
     task_vector = models.StringField()
@@ -78,7 +75,8 @@ class Results(Page):
 
     @staticmethod
     def is_displayed(player):
-        return player.round_number == player.participant.selectedNumTasks
+        return ((player.round_number == player.participant.selectedNumTasks) or 
+                player.participant.selectedNumTasks == 0)
 
 
 page_sequence = [Tasks, Results]
